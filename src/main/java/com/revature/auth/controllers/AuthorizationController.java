@@ -12,6 +12,7 @@ import com.revature.auth.services.UserService;
 import com.revature.auth.utils.DtoUtil;
 import com.revature.auth.utils.EmailUtil;
 import com.revature.auth.utils.JwtUtil;
+import com.revature.auth.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,7 @@ public class AuthorizationController {
 
         Set<UserDTO> adminDTOs = DtoUtil.usersToDTOs(userService.getUsersByRole("admin"));
         EmailUtil.notifyAdmins(adminDTOs);
-
+        user.setPassword(null);
         return ResponseEntity.status(201).body(userDTO);
     }
 
@@ -48,6 +49,9 @@ public class AuthorizationController {
     @GetMapping("/resolve")
     public ResponseEntity<Set<UserDTO>> getPendingUsers(){
         Set<UserDTO> userDTOS = DtoUtil.usersToDTOs(userService.getUsersByStatus("pending"));
+        for (UserDTO user : userDTOS) {
+            user.setPassword(null);
+        }
         return ResponseEntity.status(200).body(userDTOS);
     }
 
@@ -56,21 +60,28 @@ public class AuthorizationController {
     public ResponseEntity<UserDTO> updateStatusById(@RequestBody User user,@PathVariable int userId){
         UserDTO userDTO = new UserDTO(userService.getUserById(userId));
         String status = user.getStatus();
+        String pass = RandomUtil.generate(30);
+        userDTO.setPassword(pass);
         switch (status){
             case "denied":
+                userDTO.setPassword(null);
                 return ResponseEntity.status(200).body(new UserDTO(userService.denyUserById(userId)));
             case "approved":
-                String jwt = JwtUtil.generate(user.getEmail(), user.getRole(), user.getUserId());
+                String jwt = JwtUtil.generate(user.getEmail(), user.getRole(), user.getUserId(), user.getStatus());
                 EmailUtil.notifyUser(userDTO, "https://assignforce.revature.com/password?id="+jwt);
-                return ResponseEntity.status(200).body(new UserDTO(userService.approveUserById(userId)));
+                userDTO.setPassword(null);
+                return ResponseEntity.status(200).body(new UserDTO(userService.approveUserById(userId, pass)));
             default:
                 throw new IllegalArgumentException("status not found");
         }
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<UserDTO> setPassword(@RequestBody User user){
-        return ResponseEntity.status(200).body(new UserDTO(userService.setPassword(user,user.getPassword())));
+    public ResponseEntity<JwtDTO> setPassword(@RequestBody User user){
+        UserDTO userDTO = new UserDTO(user);
+        userService.setPassword(user, user.getPassword());
+        String jwt = JwtUtil.generate(userDTO.getEmail(), userDTO.getRole(), userDTO.getUserId(), userDTO.getStatus());
+        return ResponseEntity.status(200).body(new JwtDTO(jwt));
     }
 
     @PostMapping("/login")
@@ -78,7 +89,7 @@ public class AuthorizationController {
         System.out.println(userDTO);
         if(!(userDTO==null)){
             userDTO = new UserDTO(userService.findUserByUsernameAndPassword(userDTO.getEmail(), userDTO.getPassword()));
-            String jwtData = JwtUtil.generate(userDTO.getEmail(),userDTO.getRole(), userDTO.getUserId());
+            String jwtData = JwtUtil.generate(userDTO.getEmail(),userDTO.getRole(), userDTO.getUserId(), userDTO.getStatus());
             JwtDTO jwt = new JwtDTO(jwtData);
             return ResponseEntity.status(200).body(jwt);
         }
@@ -88,6 +99,11 @@ public class AuthorizationController {
     @PostMapping("/verify")
     public ResponseEntity<DecodedJwtDTO> verify(@RequestBody String jwt) throws JWTDecodeException {
         return ResponseEntity.status(200).body(new DecodedJwtDTO(JwtUtil.isValidJWT(jwt)));
+    }
+
+    @GetMapping("/health")
+    public boolean health() {
+        return true;
     }
 
 }

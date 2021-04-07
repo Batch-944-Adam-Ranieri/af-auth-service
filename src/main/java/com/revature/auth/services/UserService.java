@@ -11,8 +11,8 @@ public interface UserService {
     public Set<User> getUsersByRole(String role);
     public User getUserById(int userId);
 
-    public User approveUser(User user);
-    public User approveUserById(int userId);
+    public User approveUser(User user, String pass);
+    public User approveUserById(int userId, String pass);
 
     public User denyUser(User user);
     public User denyUserById(int userId);

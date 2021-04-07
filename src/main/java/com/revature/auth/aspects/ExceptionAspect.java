@@ -1,6 +1,8 @@
 package com.revature.auth.aspects;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.revature.auth.exceptions.UnauthorizedException;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.annotation.Aspect;
@@ -59,6 +61,11 @@ public class ExceptionAspect {
     @ExceptionHandler({SignatureVerificationException.class})
     public ResponseEntity<String> handleSignatureVerificationException(SignatureVerificationException e){
         return error(HttpStatus.UNAUTHORIZED, e);
+    }
+
+    @ExceptionHandler({JWTDecodeException.class})
+    public ResponseEntity<String> handleJWTDecodeException(JWTDecodeException e){
+        return error(HttpStatus.BAD_REQUEST, e);
     }
 
 //    @ExceptionHandler({SQLException.class})

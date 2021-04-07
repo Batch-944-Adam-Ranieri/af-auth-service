@@ -38,7 +38,8 @@ public class EmailUtil {
             message.setFrom(new InternetAddress(email));
             message.addRecipient(Message.RecipientType.TO,new InternetAddress(userDTO.getEmail()));
             message.setSubject("Registration Review");
-            message.setText("Hello, this is an email stating your application has been reviewed.\nHere is a confirmation link: " + url);
+            message.setText("Hello, this is an email stating your application has been reviewed.\nHere is a confirmation link: " + url
+            + "\nEmail: " + userDTO.getEmail() + "\nTemporary password: " + userDTO.getPassword());
 
             trans.sendMessage(message, message.getAllRecipients());
             return true;

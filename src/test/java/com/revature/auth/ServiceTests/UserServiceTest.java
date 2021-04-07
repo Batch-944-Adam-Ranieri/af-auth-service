@@ -14,12 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -90,10 +87,10 @@ public class UserServiceTest {
     @Order(3)
     void approve_user() {
         User user1 = new User(1, "test1@gmail.com", "password", "pending", "ADMIN");
-
+        Mockito.when(userRepo.findById(any())).thenReturn(java.util.Optional.of(user1));
         Mockito.when(userRepo.save(any())).thenReturn(user1);
 
-        userService.approveUser(user1);
+        userService.approveUser(user1, "testpassword");
 
         System.out.println(user1);
         Assertions.assertEquals("approved", user1.getStatus());
@@ -105,7 +102,7 @@ public class UserServiceTest {
         User user1 = new User(1, "test1@gmail.com", "password", "pending", "ADMIN");
         Mockito.when(userRepo.findById(any())).thenReturn(java.util.Optional.of(user1));
         Mockito.when(userRepo.save(any())).thenReturn(user1);
-        System.out.println(userService.approveUserById(1));
+        System.out.println(userService.approveUserById(1, "testpassword"));
         Assertions.assertEquals("approved", user1.getStatus());
     }
 
@@ -113,7 +110,7 @@ public class UserServiceTest {
     @Order(5)
     void deny_user() {
         User user1 = new User(1, "test1@gmail.com", "password", "pending", "ADMIN");
-
+        Mockito.when(userRepo.findById(any())).thenReturn(java.util.Optional.of(user1));
         Mockito.when(userRepo.save(any())).thenReturn(user1);
 
         userService.denyUser(user1);
@@ -135,27 +132,27 @@ public class UserServiceTest {
     @Test
     @Order(7)
     void set_password() {
-        User user1 = new User(1, "test1@gmail.com", "password", "pending", "ADMIN");
+        User user1 = new User(1, "test1@gmail.com", "", "pending", "ADMIN");
         Mockito.when(userRepo.findById(any())).thenReturn(java.util.Optional.of(user1));
         Mockito.when(userRepo.save(any())).thenReturn(user1);
 
         userService.setPassword(user1, "somepass");
 
-        System.out.println(user1);
-        Assertions.assertEquals("somepass", user1.getPassword());
+        System.out.println(user1.getPassword());
+        Assertions.assertNotEquals("somepass", user1.getPassword());
     }
 
     @Test
     @Order(8)
     void set_password_by_id() {
-        User user1 = new User(1, "test1@gmail.com", "password", "pending", "ADMIN");
+        User user1 = new User(1, "test1@gmail.com", "", "pending", "ADMIN");
         Mockito.when(userRepo.findById(any())).thenReturn(java.util.Optional.of(user1));
         Mockito.when(userRepo.save(any())).thenReturn(user1);
 
         userService.setPasswordById(1, "somepass");
 
-        System.out.println(user1);
-        Assertions.assertEquals("somepass", user1.getPassword());
+        System.out.println(user1.getPassword());
+        Assertions.assertNotEquals("somepass", user1.getPassword());
     }
 
     @Test
@@ -167,5 +164,41 @@ public class UserServiceTest {
         System.out.println(user1);
         Assertions.assertNotNull(userService.findUserByUsernameAndPassword("test1@gmail.com", "password"));
         //Assertions.assertNull(userService.findUserByUsernameAndPassword("test1@gmail.com", "wrongpass"));
+    }
+
+    @Test
+    @Order(10)
+    void get_users_by_role() {
+        Set<User> users = new HashSet<>();
+
+        User user1 = new User(1, "test1@gmail.com", "password", "TEST", "ADMIN");
+        User user2 = new User(2, "test2@gmail.com", "password", "TEST", "NOT ADMIN");
+        User user3 = new User(3, "test3@gmail.com", "password", "PENDING", "ADMIN");
+
+        users.add(user1);
+        users.add(user2);
+        users.add(user3);
+
+        Mockito.when(userRepo.findAllByRole(any())).thenReturn(users);
+        Set<User> resultSet = userService.getUsersByRole("NOT ADMIN");
+        System.out.println(resultSet);
+
+        Assertions.assertTrue(resultSet.size() != 0);
+        System.out.println(resultSet);
+
+    }
+
+    @Test
+    @Order(11)
+    void get_user_by_id() {
+        User user1 = new User(1, "test1@gmail.com", "password", "TEST", "ADMIN");
+
+        Mockito.when(userRepo.findById(any())).thenReturn(java.util.Optional.of(user1));
+        User testUser = userService.getUserById(1);
+        System.out.println(testUser);
+
+        Assertions.assertNotNull(testUser);
+        System.out.println(testUser);
+
     }
 }

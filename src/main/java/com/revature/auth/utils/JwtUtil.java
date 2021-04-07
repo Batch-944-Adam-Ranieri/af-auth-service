@@ -8,12 +8,13 @@ public class JwtUtil {
 
     private static final Algorithm ALGORITHM = Algorithm.HMAC256(System.getenv("AF_SECRET"));
 
-    public static String generate(String email, String role, int id) {
+    public static String generate(String email, String role, int id, String status) {
 
         return JWT.create()
                 .withClaim("id", id)
                 .withClaim("email", email)
                 .withClaim("role", role)
+                .withClaim("status", status)
                 .sign(ALGORITHM);
     }
 

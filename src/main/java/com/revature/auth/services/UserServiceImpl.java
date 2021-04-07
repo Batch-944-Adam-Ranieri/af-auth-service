@@ -3,6 +3,7 @@ package com.revature.auth.services;
 import com.revature.auth.entities.User;
 import com.revature.auth.repos.UserRepo;
 import com.revature.auth.utils.HashUtil;
+import com.revature.auth.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User register(User user) {
-        user.setStatus("pending");
+        user.setStatus("pending_approval");
         user = userRepo.save(user);
         return user;
     }
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Set<User> getUsersByRole(String role) {
-            return userRepo.findAllByStatus(role);
+            return userRepo.findAllByRole(role);
     }
 
     @Override
@@ -42,11 +43,12 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
-    public User approveUser(User user) {
+    public User approveUser(User user, String pass) {
         Optional<User> op = userRepo.findById(user.getUserId());
         if (op.isPresent()) {
             User userCheck = op.get();
-            userCheck.setStatus("approved");
+            userCheck.setStatus("pending_creation");
+            userCheck.setPassword(HashUtil.hash(pass));
             userRepo.save(userCheck);
             return userCheck;
         }
@@ -54,11 +56,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User approveUserById(int userId) {
+    public User approveUserById(int userId, String pass) {
         Optional<User> op = userRepo.findById(userId);
         if (op.isPresent()) {
             User user = op.get();
-            user.setStatus("approved");
+            user.setStatus("pending_creation");
+            user.setPassword(HashUtil.hash(pass));
             userRepo.save(user);
             return user;
         }
@@ -96,7 +99,7 @@ public class UserServiceImpl implements UserService{
 
         User user1 = op.get();
         user1.setPassword(HashUtil.hash(password));
-
+        user1.setStatus("created");
         userRepo.save(user1);
         return user1;
     }
@@ -106,7 +109,8 @@ public class UserServiceImpl implements UserService{
         Optional<User> op = userRepo.findById(userId);
         if (op.isPresent()) {
             User user1 = op.get();
-            user1.setPassword(password);
+            user1.setPassword(HashUtil.hash(password));
+            user1.setStatus("created");
             userRepo.save(user1);
             return user1;
         }

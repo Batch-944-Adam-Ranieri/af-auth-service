@@ -8,13 +8,56 @@ on:
     branches: 
       - '*'
 
+env:
+  GCR_EMAIL: ${{ secrets.GCR_EMAIL }}
+  GCR_KEY : ${{ secrets.GCR_KEY }}
+  GCR_PROJECT: ${{ secrets.GCR_PROJECT }}
+  GCR_REPO: ${{ secrets.GCR_REPO }}
+  IMAGE: assignforce-auth
+
+
 jobs:
-
-  build:
-
+  setup-build-publish-deploy:
+    name: Setup, Build, Deplay
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Googgle Cloud Github Actions
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with: 
+        version: '270.0.0'
+        service_account_key: ${{ secrets.GCR_KEY }} 
+        
+    - name: Googgle Cloud Authentication
+      run: |
+        gcloud auth configure-docker    
+    
+    - name: Build Docker
+      run: docker build . --file Dockerfile --tag assignforce-auth
+
+    - name: Publish
+      run: |
+        docker tag assignforce-auth "$GCR_REPO"/"$GCR_PROJECT"/"$IMAGE"
+        docker push "$GCR_REPO"/"$GCR_PROJECT"/"$IMAGE"
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

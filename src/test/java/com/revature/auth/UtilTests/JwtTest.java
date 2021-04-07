@@ -13,7 +13,7 @@ public class JwtTest {
     @Test
     @Order(1)
     void create_jwt_trainer(){
-        String jwt = JwtUtil.generate("trainer@email.com","trainer", 1);
+        String jwt = JwtUtil.generate("trainer@email.com","trainer", 1, "created");
         Assertions.assertNotNull(jwt);
         Assertions.assertTrue(jwt.matches("^(.*\\..*){2}$"));
         testTrainerJwt = jwt;
@@ -22,7 +22,7 @@ public class JwtTest {
     @Test
     @Order(2)
     void create_jwt_admin(){
-        String jwt = JwtUtil.generate("admin@email.com","admin", 2);
+        String jwt = JwtUtil.generate("admin@email.com","admin", 2, "created");
         Assertions.assertNotNull(jwt);
         testAdminJwt = jwt;
     }
