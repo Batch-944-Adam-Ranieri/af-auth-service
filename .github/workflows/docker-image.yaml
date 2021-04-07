@@ -1,7 +1,3 @@
-
-
-
-
 name: Docker Image CI
 
 on:
@@ -37,7 +33,7 @@ jobs:
         service_account_key: ${{ secrets.GCR_KEY }} 
         
     - name: Googgle Cloud Authentication
-    - run: |
+      run: |
         gcloud auth configure-docker    
     
     - name: Build Docker
@@ -49,9 +45,6 @@ jobs:
         docker push "$GCR_REPO"/"$GCR_PROJECT"/"$IMAGE"
         
         
-
-
-
 
 
 
