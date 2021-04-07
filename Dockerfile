@@ -20,6 +20,8 @@ WORKDIR /workspace/build/libs
 EXPOSE 8080
 # this allows the container to be accessed on that port
 
+RUN sudo chmod 777 auth-0.0.1-SNAPSHOT.jar
+
 ENTRYPOINT [ "java", "-jar", "auth-0.0.1-SNAPSHOT.jar" ]
 # The command that will execute when you create an instance of the image
 # Usually this would be the command to start your application
