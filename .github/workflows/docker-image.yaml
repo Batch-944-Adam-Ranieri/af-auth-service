@@ -41,7 +41,7 @@ jobs:
       run: docker build . --file Dockerfile --tag assignforce-auth
 
     - name: Publish
-    - run: |
+      run: |
         docker tag assignforce-auth "$GCR_REPO"/"$GCR_PROJECT"/"$IMAGE"
         docker push "$GCR_REPO"/"$GCR_PROJECT"/"$IMAGE"
         
