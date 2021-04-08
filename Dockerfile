@@ -20,7 +20,10 @@ WORKDIR /workspace/build/libs
 EXPOSE 8080
 # this allows the container to be accessed on that port
 
-RUN sudo chmod 777 auth-0.0.1-SNAPSHOT.jar
+RUN export AssignForceAuth=jdbc:postgresql://34.66.74.89:5432/authorization-db?user=revatureBatch944&password=AdamRanieri
+RUN export AssignForceSalt=revature
+RUN export AF_EMAIL_SECRET=authteam777!
+RUN export AF_SECRET=afsupersecret
 
 ENTRYPOINT [ "java", "-jar", "auth-0.0.1-SNAPSHOT.jar" ]
 # The command that will execute when you create an instance of the image
