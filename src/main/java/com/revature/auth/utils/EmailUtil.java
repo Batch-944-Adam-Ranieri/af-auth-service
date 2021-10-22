@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class EmailUtil {
 
-    private static String email = "cloudedesu@gmail.com";
+    private static String email = "AssignForceNotify@gmail.com";
     private static String password = System.getenv("AF_EMAIL_SECRET");
     private static String server = "smtp.gmail.com";
 

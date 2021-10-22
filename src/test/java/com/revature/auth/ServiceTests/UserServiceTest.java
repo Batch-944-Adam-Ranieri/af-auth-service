@@ -3,7 +3,6 @@ package com.revature.auth.ServiceTests;
 import com.revature.auth.entities.User;
 import com.revature.auth.repos.UserRepo;
 import com.revature.auth.services.UserServiceImpl;
-import com.revature.auth.utils.HashUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,7 +55,7 @@ public class UserServiceTest {
         testUser.setRole("trainer");
 
         testUser = userService.register(testUser);
-        Assertions.assertEquals("pending_approval", testUser.getStatus());
+        Assertions.assertEquals("pending", testUser.getStatus());
 
         System.out.println(testUser);
 
@@ -94,7 +93,7 @@ public class UserServiceTest {
         userService.approveUser(user1, "testpassword");
 
         System.out.println(user1);
-        Assertions.assertEquals("pending_creation", user1.getStatus());
+        Assertions.assertEquals("approved", user1.getStatus());
     }
 
     @Test
@@ -104,7 +103,7 @@ public class UserServiceTest {
         Mockito.when(userRepo.findById(any())).thenReturn(java.util.Optional.of(user1));
         Mockito.when(userRepo.save(any())).thenReturn(user1);
         System.out.println(userService.approveUserById(1, "testpassword"));
-        Assertions.assertEquals("pending_creation", user1.getStatus());
+        Assertions.assertEquals("approved", user1.getStatus());
     }
 
     @Test
@@ -159,7 +158,7 @@ public class UserServiceTest {
     @Test
     @Order(9)
     void check_cred() {
-        User user1 = new User(1, "test1@gmail.com", HashUtil.hash("password"), "pending", "ADMIN");
+        User user1 = new User(1, "test1@gmail.com", "3dfffde8ad041c96edc27520eb0519130983ecb55ef0bfae2574aac051181c5a", "pending", "ADMIN");
         Mockito.when(userRepo.findByEmail(any())).thenReturn(user1);
 
         System.out.println(user1);

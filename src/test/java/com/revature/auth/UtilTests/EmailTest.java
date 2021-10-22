@@ -25,7 +25,7 @@ public class EmailTest {
 
     @Test
     void notify_user(){
-        User testUser = userRepo.findById(5).get();
+        User testUser = userRepo.findById(23).get();
         UserDTO userDTO = new UserDTO(testUser);
 
         boolean result = EmailUtil.notifyUser(userDTO, "https://www.google.com/");
@@ -34,7 +34,7 @@ public class EmailTest {
 
     @Test
     void notify_admin(){
-        User testUser = userRepo.findById(5).get();
+        User testUser = userRepo.findById(24).get();
         UserDTO userDTO = new UserDTO(testUser);
         Set<UserDTO> admins = new HashSet<>();
         admins.add(userDTO);
